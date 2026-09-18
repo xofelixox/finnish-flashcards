@@ -201,10 +201,13 @@
 
       // Filter items due today or brand new
       queue = data.filter(item => {
-        const prog = item.user_progress[0];
-        if (!prog) return true; // new word
+        const prog = Array.isArray(item.user_progress) && item.user_progress.length > 0 
+            ? item.user_progress[0] 
+            : item.user_progress;
+
+        if (!prog) return true; // Brand new word
         return new Date(prog.next_review) <= new Date();
-      });
+        });
 
       document.getElementById('stats').innerText = `${queue.length} words due today`;
       nextCard();
@@ -237,11 +240,9 @@
     async function rateWord(isGood) {
       if (!currentItem) return;
 
-      const prog = currentItem.user_progress[0] || {
-        interval: 1,
-        repetition: 0,
-        ease_factor: 2.5
-      };
+      const prog = (Array.isArray(currentItem.user_progress) && currentItem.user_progress.length > 0)
+        ? currentItem.user_progress[0] 
+        : (currentItem.user_progress || { interval: 1, repetition: 0, ease_factor: 2.5 });
 
       let { interval, repetition, ease_factor } = prog;
 
